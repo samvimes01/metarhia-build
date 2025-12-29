@@ -21,7 +21,7 @@ after(() => {
 const run = (cwd, buildConfig) =>
   new Promise((resolve, reject) => {
     const args = [buildPath];
-    if (buildConfig) args.push(buildConfig);
+    if (buildConfig) args.push('--config', buildConfig);
     const proc = spawn('node', args, {
       cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -46,6 +46,18 @@ const run = (cwd, buildConfig) =>
       }
     });
   });
+
+test('build: validates config', async () => {
+  const tempDir = path.join(__dirname, 'temp');
+  fs.mkdirSync(tempDir, { recursive: true });
+  fs.writeFileSync(path.join(tempDir, 'build.json'), '{"mode": "invalid"}');
+
+  try {
+    await assert.rejects(() => run(tempDir), /Invalid configuration/);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
 
 test('build: creates bundle with correct structure', async () => {
   if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
@@ -187,8 +199,8 @@ test('build: creates output file with package name', async () => {
 });
 
 test('build app mode: creates symlinks for dependencies', async () => {
-  const targetAppDir = path.join(fixturesDir, 'application');
-  const targetDir = path.join(targetAppDir, 'static');
+  const appDir = path.join(fixturesDir, 'application');
+  const appStaticDir = path.join(appDir, 'static');
   const testPkgPath = path.join(
     fixturesDir,
     'node_modules',
@@ -197,15 +209,15 @@ test('build app mode: creates symlinks for dependencies', async () => {
   );
 
   // Clean up any existing test files
-  if (fs.existsSync(targetDir)) {
-    await fs.promises.rm(targetDir, { recursive: true });
+  if (fs.existsSync(appStaticDir)) {
+    await fs.promises.rm(appStaticDir, { recursive: true });
   }
 
   // Run in app mode using build.app.json
   await run(fixturesDir, 'build.app.json');
 
   // Verify the symlink was created
-  const linkPath = path.join(targetDir, 'test-package.mjs');
+  const linkPath = path.join(appStaticDir, 'test-package.mjs');
   assert.ok(fs.existsSync(linkPath), 'Symlink should be created');
 
   // Verify the symlink points to the correct location
@@ -218,7 +230,7 @@ test('build app mode: creates symlinks for dependencies', async () => {
   );
 
   // Clean up
-  await fs.promises.rm(targetAppDir, { recursive: true });
+  await fs.promises.rm(appDir, { recursive: true });
 });
 
 test('build iife mode: creates self-contained bundle with deps', async () => {
@@ -265,7 +277,7 @@ test('build: fails when build.json is missing', async () => {
   fs.mkdirSync(tempDir, { recursive: true });
 
   try {
-    await assert.rejects(() => run(tempDir), /ENOENT|Cannot find module/);
+    await assert.rejects(() => run(tempDir), /Configuration file not found/);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
