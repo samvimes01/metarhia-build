@@ -62,6 +62,10 @@ const ensureDirectory = (dirPath) => {
 const resolveFilePath = (basePath, ...segments) =>
   path.join(basePath, ...segments);
 
+const BUNDLE_EXT = {
+  lib: '.mjs',
+  iife: '.iife.js',
+};
 module.exports = {
   readFileSync,
   writeFileSync,
@@ -69,4 +73,5 @@ module.exports = {
   fileExists,
   ensureDirectory,
   resolveFilePath,
+  BUNDLE_EXT,
 };

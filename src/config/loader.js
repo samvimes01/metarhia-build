@@ -9,7 +9,7 @@ const {
 const { validateConfig } = require('./schema');
 const logger = require('../utils/logger');
 
-const loadConfig = (configPath, cwd) => {
+const loadConfig = (configPath, cwd, override) => {
   const fullConfigPath = resolveFilePath(cwd, configPath);
 
   if (!fileExists(fullConfigPath)) {
@@ -17,8 +17,12 @@ const loadConfig = (configPath, cwd) => {
     process.exit(1);
   }
 
-  const config = readJsonSync(fullConfigPath, 'build configuration');
-  validateConfig(config, fullConfigPath); // TODO: try metaschema
+  Object.keys(override).forEach((key) => {
+    if (!override[key]) delete override[key];
+  });
+  const buildConfig = readJsonSync(fullConfigPath, 'build configuration');
+  const config = { ...buildConfig, ...override };
+  validateConfig(config, fullConfigPath);
 
   const defaults = {
     // read from config file
@@ -32,7 +36,9 @@ const loadConfig = (configPath, cwd) => {
     nodeModulesPath: 'node_modules',
   };
 
-  return { ...defaults, ...config };
+  const finalConfig = { ...defaults, ...config };
+
+  return finalConfig;
 };
 
 const loadPackageJson = (cwd) => {

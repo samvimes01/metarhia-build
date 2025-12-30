@@ -5,7 +5,11 @@ const {
   parseAndRecordImport,
   generateImportStatements,
 } = require('../transforms/imports');
-const { transformExports } = require('../transforms/exports');
+const {
+  transformExports,
+  extractExportNames,
+  removeExports,
+} = require('../transforms/exports');
 const { generateBundleHeader, wrapInRegion } = require('./regions');
 
 class Bundler {
@@ -14,6 +18,7 @@ class Bundler {
     this.packageJson = packageJson;
     this.license = license;
     this.importRegistry = new Map();
+    this.exportNames = [];
   }
 
   processFile(filename) {
@@ -42,7 +47,14 @@ class Bundler {
     }
 
     content = filteredLines.join('\n');
-    content = transformExports(content, this.config.mode);
+
+    if (this.config.mode === 'iife') {
+      const names = extractExportNames(content);
+      this.exportNames.push(...names);
+      content = removeExports(content);
+    } else {
+      content = transformExports(content, this.config.mode);
+    }
 
     return content;
   }
@@ -67,6 +79,7 @@ class Bundler {
       importsBlock,
       bundleContent,
       importRegistry: this.importRegistry,
+      exportNames: this.exportNames,
     };
   }
 }

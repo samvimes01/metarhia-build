@@ -17,14 +17,16 @@ const main = async () => {
   const { values: args } = parseArgs({
     options: {
       config: { type: 'string', short: 'c' },
+      mode: { type: 'string', short: 'm' },
     },
     allowPositionals: true,
   });
 
   const cwd = process.cwd();
   const configPath = args.config || 'build.json';
+  const configOverride = { mode: args.mode };
 
-  const config = loadConfig(configPath, cwd);
+  const config = loadConfig(configPath, cwd, configOverride);
   const packageJson = loadPackageJson(cwd);
   const license = loadLicense(cwd, config.licensePath);
 

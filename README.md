@@ -38,7 +38,11 @@ interface Config {
 }
 ```
 
-When `mode` is `app`, order field should contain dependency names and thus should be installed and available in `node_modules` directory.
+- Default mode is `lib`. It just concantenate files in the order specified in `build.json` order field. And converts all requires to imports and puts import once at the top of the file.
+
+- When `mode` is `iife`, it will bundle everything into `modulename.iife.js` with a header containing version and license information and bundle all dependencies into a single file. This is useful for browser service worker usage - import with `importScripts()`.
+
+- When `mode` is `app`, order field should contain dependency names and thus should be installed and available in `node_modules` directory. Builder will symlink all dependencies from `node_modules` into `appStaticDir` directory (for libs with es and iife - both files will be linked).
 
 ```json
 {
@@ -76,10 +80,13 @@ module.exports = [
 npm run build
 ```
 
-It accepts a config file as an argument:
+Arguments:
+
+- `-c` or `--config` - path to config file
+- `-m` or `--mode` - mode to build - overrides mode in config file
 
 ```bash
-npm run build -- -c ./path/to/build.other.json
+npm run build -- -c ./path/to/build.other.json -m iife
 # or
 metarhia-build --c ./path/to/build.other.json
 # or
@@ -94,10 +101,7 @@ This will:
 - Convert CommonJS `module.exports` to ES6 `export` statements
 - Remove `'use strict'` declarations
 - Remove internal submodules `require()` or `import` calls
-- Bundle everything into `modulename.mjs` (or ouputDir/modulename.mjs) with a header containing version and license information
-
-- If `mode` is `iife`, it will bundle everything into `modulename.iife.js` with a header containing version and license information and bundle all dependencies into a single file.
-- If `mode` is `app`, it will symlink all dependencies from `node_modules` into `appStaticDir` directory. Those deps are listed in `order` field of `build.json` as dependency names and thus should be installed and available in `node_modules` directory.
+- Bundle everything into `modulename.mjs` (or ouputDir/modulename.mjs) with a header containing version and license information. When `mode` is `iife` bundle name will be `modulename.iife.js`.
 
 ## License & Contributors
 

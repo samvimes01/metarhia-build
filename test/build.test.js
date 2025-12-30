@@ -5,6 +5,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
+const { BUNDLE_EXT } = require('../src/utils/file-utils');
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 const buildPath = path.join(__dirname, '..', 'metarhia-build.js');
@@ -12,7 +13,7 @@ const packageJson = JSON.parse(
   fs.readFileSync(path.join(fixturesDir, 'package.json'), 'utf8'),
 );
 const packageName = packageJson.name.split('/').pop();
-const outputFile = path.join(fixturesDir, `${packageName}.mjs`);
+const outputFile = path.join(fixturesDir, `${packageName}${BUNDLE_EXT.lib}`);
 
 after(() => {
   if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
@@ -190,8 +191,8 @@ test('build: creates output file with package name', async () => {
   // Verify output file is named after package.json name
   assert.ok(fs.existsSync(outputFile), 'Output file should be created');
   assert.ok(
-    outputFile.endsWith(`${packageName}.mjs`),
-    `Output file should be named ${packageName}.mjs`,
+    outputFile.endsWith(`${packageName}${BUNDLE_EXT.lib}`),
+    `Output file should be named ${packageName}${BUNDLE_EXT.lib}`,
   );
 
   // Clean up
@@ -234,6 +235,8 @@ test('build app mode: creates symlinks for dependencies', async () => {
 });
 
 test('build iife mode: creates self-contained bundle with deps', async () => {
+  const outputFile = path.join(fixturesDir, `${packageName}${BUNDLE_EXT.iife}`);
+
   if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
 
   // Run in iife mode using build.iife.json
