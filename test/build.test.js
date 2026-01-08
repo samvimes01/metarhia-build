@@ -29,6 +29,7 @@ const run = (cwd, buildConfig) =>
     const args = [buildPath];
     if (buildConfig) args.push('--config', buildConfig);
     const proc = spawn('node', args, {
+      env: { ...process.env, NODE_ENV: 'test' },
       cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
     });

@@ -8,9 +8,7 @@ const {
   loadLicense,
   validateSourceFiles,
 } = require('./src/config/loader');
-const { executeLibMode } = require('./src/modes/lib-mode');
-const { executeIIFEMode } = require('./src/modes/iife-mode');
-const { executeAppMode } = require('./src/modes/app-mode');
+const { modeExecutors } = require('./src/modes');
 const logger = require('./src/utils/logger');
 
 const main = async () => {
@@ -34,25 +32,24 @@ const main = async () => {
     validateSourceFiles(config.order, config.libDir, cwd);
   }
 
-  const modeExecutors = {
-    lib: () => executeLibMode(config, packageJson, license),
-    iife: () => executeIIFEMode(config, packageJson, license),
-    app: () => executeAppMode(config),
-  };
-
   const executor = modeExecutors[config.mode];
   if (!executor) {
-    logger.error(`Unknown mode: ${config.mode}`);
-    process.exit(1);
+    throw new Error(`Unknown mode: ${config.mode}`);
   }
 
-  await executor();
+  await executor(config, packageJson, license);
 };
+
+if (!process.stdin.isTTY && process.env.NODE_ENV !== 'test') {
+  // Running as a script file or input is redirected
+  // Do nothing
+  return;
+}
 
 main().catch((error) => {
   logger.error(`Build failed: ${error.message}`);
   if (error.stack) {
-    console.error(error.stack);
+    logger.error(error.stack);
   }
   process.exit(1);
 });

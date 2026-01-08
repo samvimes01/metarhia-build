@@ -29,7 +29,7 @@ class Bundler {
     );
     let content = readFileSync(filePath, `processing ${filename}`);
 
-    content = content.replace(`'use strict';\n\n`, '');
+    content = content.replace(/'use strict';?\n{0,2}/g, '');
     content = processImports(content, filename, this.importRegistry);
 
     if (this.config.mode === 'iife') {
