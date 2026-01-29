@@ -85,7 +85,7 @@ test('build: creates bundle with correct structure', async () => {
   // Check required libs
   assert.ok(
     // eslint-disable-next-line max-len
-    output.includes(`import { TEST_PCKG_VAR, TEST_PCKG_VAR_1, TEST_PCKG_VAR_2, TEST_PCKG_VAR_3, TEST_PCKG_VAR_4 } from 'test-package';
+    output.includes(`import { TEST_PCKG_VAR, TEST_PCKG_VAR_1, TEST_PCKG_VAR_2, TEST_PCKG_VAR_3, TEST_PCKG_VAR_4 } from './test-package.js';
 `),
   );
 
@@ -228,7 +228,7 @@ test('build app mode: creates symlinks for dependencies', async () => {
   await run(fixturesDir, 'build.app.json');
 
   // Verify the symlink was created
-  const linkPath = path.join(appStaticDir, 'test-package.mjs');
+  const linkPath = path.join(appStaticDir, 'test-package.js');
   assert.ok(fs.existsSync(linkPath), 'Symlink should be created');
 
   // Verify the symlink points to the correct location

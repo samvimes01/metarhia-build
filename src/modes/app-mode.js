@@ -21,7 +21,7 @@ const findSourceFiles = async (nodeModulesPath, dep) => {
 
   try {
     await fs.access(mjsFile);
-    files.push({ path: mjsFile, name: `${dep}${BUNDLE_EXT.lib}` });
+    files.push({ path: mjsFile, name: `${dep}${BUNDLE_EXT.symlinked}` });
   } catch {
     // MJS file doesn't exist, continue
   }

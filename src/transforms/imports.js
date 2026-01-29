@@ -165,7 +165,8 @@ const generateImportStatements = (importRegistry) => {
   if (importRegistry.size === 0) return '';
   const lines = [];
 
-  for (const [specifier, entry] of importRegistry.entries()) {
+  for (const [depName, entry] of importRegistry.entries()) {
+    const specifier = `./${depName}.js`;
     if (entry.sideEffect) lines.push(`import '${specifier}';`);
 
     const namedParts = Array.from(entry.named);

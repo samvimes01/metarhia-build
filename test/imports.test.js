@@ -115,8 +115,8 @@ describe('generateImportStatements', () => {
       sideEffect: false,
     });
     const output = generateImportStatements(registry);
-    assert.ok(output.includes("import PkgA from 'pkg-a';"));
-    assert.ok(output.includes("import { fn1, fn2 } from 'pkg-b';"));
+    assert.ok(output.includes("import PkgA from './pkg-a.js';"));
+    assert.ok(output.includes("import { fn1, fn2 } from './pkg-b.js';"));
   });
 
   test('imports: generates combined default and named import', () => {
@@ -127,6 +127,6 @@ describe('generateImportStatements', () => {
       sideEffect: false,
     });
     const output = generateImportStatements(registry);
-    assert.ok(output.includes("import Pkg, { helper } from 'pkg';"));
+    assert.ok(output.includes("import Pkg, { helper } from './pkg.js';"));
   });
 });
